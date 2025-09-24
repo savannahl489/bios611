@@ -10,65 +10,33 @@ library(tidyverse)
 # Task 1: Build the Shape Table
 #######################################
 
-# Reading in the Data:
+# Reading in the data:
 raw_df<- read.csv("work/nuforc_sightings.csv")
-
-state_map <- tribble(
-  ~state, ~name,
-  "al", "Alabama",
-  "ak", "Alaska",
-  "az", "Arizona",
-  "ar", "Arkansas",
-  "ca", "California",
-  "co", "Colorado",
-  "ct", "Connecticut",
-  "de", "Delaware",
-  "fl", "Florida",
-  "ga", "Georgia",
-  "hi", "Hawaii",
-  "id", "Idaho",
-  "il", "Illinois",
-  "in", "Indiana",
-  "ia", "Iowa",
-  "ks", "Kansas",
-  "ky", "Kentucky",
-  "la", "Louisiana",
-  "me", "Maine",
-  "md", "Maryland",
-  "ma", "Massachusetts",
-  "mi", "Michigan",
-  "mn", "Minnesota",
-  "ms", "Mississippi",
-  "mo", "Missouri",
-  "mt", "Montana",
-  "ne", "Nebraska",
-  "nv", "Nevada",
-  "nh", "New Hampshire",
-  "nj", "New Jersey",
-  "nm", "New Mexico",
-  "ny", "New York",
-  "nc", "North Carolina",
-  "nd", "North Dakota",
-  "oh", "Ohio",
-  "ok", "Oklahoma",
-  "or", "Oregon",
-  "pa", "Pennsylvania",
-  "ri", "Rhode Island",
-  "sc", "South Carolina",
-  "sd", "South Dakota",
-  "tn", "Tennessee",
-  "tx", "Texas",
-  "ut", "Utah",
-  "vt", "Vermont",
-  "va", "Virginia",
-  "wa", "Washington",
-  "wv", "West Virginia",
-  "wi", "Wisconsin",
-  "wy", "Wyoming"
-)
-
-write.csv(state_map, "states.csv")
+state_map <- read.csv("work/states.csv")
 
 
 # Filtering the data:
-USA_df <- raw_df %>% mutate(tolower(state,country))
+USA_df <- raw_df %>% mutate(state = tolower(state), 
+                            country = tolower(country),
+                            shape = tolower(shape)) %>% 
+  filter(state %in% state_map$state | country == 'usa') %>% 
+  mutate(state = recode(state,"ohio" = "oh", 
+                        "new york" = "ny", "montana" = "mt",
+                        "west virginia" = "wv", "wisconsin" = "wi")) %>% 
+  filter(state %in% state_map$state | state == "-" |
+           state == "0" | state == "dc")
+
+# Standardizing the shape column:
+stand_shape <- USA_df %>% 
+  mutate(shape = ifelse(is.na(shape) | shape == "", "unknown",shape))
+
+
+# Creating the pivot table:
+shape_by_state <- stand_shape %>% group_by(state, shape) %>%
+  summarise(count = n(), .groups = "drop") 
+
+shape_state_pivot <- shape_by_state %>% pivot_wider(
+  names_from = shape, values_from = count, values_fill = 0)
+
+# INSERT COMMENT : There are 22 shapes in total excluding unknown and other. 
+# California/ CA saw the most circular shapes.
