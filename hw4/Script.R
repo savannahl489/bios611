@@ -9,6 +9,7 @@ library(ggplot2)
 library(stopwords)
 library(RColorBrewer)
 library(wordcloud)
+library(tidytext)
 
 ############################################
 # Task 1: Build the Shape Table
@@ -112,9 +113,9 @@ freq_word <- freq_word[order(-freq_word$frequency), ]
 # Table and word cloud:
 print(freq_word) #INSERT COMMENT: I chose to visualize this via a table because
 #of the number of unique words. A histogram was not a helpful visualization/ feasible.
-
-wordcloud(words = freq_word$word,
-          freq = freq_word$frequency,
+top_100_unclean <- head(freq_word, 100)
+wordcloud(words = top_100_unclean$word,
+          freq = top_100_unclean$frequency,
           min.freq = 1,
           random.order = FALSE,
           colors = brewer.pal(8, "Dark2"))
@@ -140,3 +141,68 @@ ggplot(top_20, aes(x = reorder(word, frequency), y = frequency)) +
 # INSERT COMMENT: From the top frequent words after cleaning, we find the words
 # "light"/"lights"/"bright", "sky", and "moving" as some of the top characterizations of
 # UFO sightings
+
+###################################################
+# TASK 4: Build the Keyword Table and PCA
+###################################################
+
+# Defining the dictionary of 100 words:
+top_100 <- clean_word %>%
+  filter(nchar(as.character(word)) >= 3) %>%
+  slice_max(order_by = frequency, n = 100)
+
+# To make table of frequencies by state:
+top100_df <- data.frame(word = top_100$word)
+tokenized_df <- clean_summary %>%
+  select(state, summary) %>%
+  unnest_tokens(word, summary) %>% 
+  filter(word %in% top100_df$word)
+
+word_state_pivot <- tokenized_df %>%
+  count(state, word, sort = TRUE) %>% 
+  pivot_wider(names_from = word, values_from = n, values_fill = 0)
+
+print(word_state_pivot)
+
+## Performing Task 2 for this table
+# Row-normalizing the table:
+word_state_norm <- word_state_pivot %>% rowwise() %>%
+  mutate(total = sum(c_across(-state))) %>%   
+  mutate(across(-c(state, total), ~ .x / total)) %>%
+  select(-total) %>%
+  ungroup()
+
+# Performing PCA:
+pca_word <- prcomp(word_state_norm[, -1], center = TRUE, scale. = TRUE)
+
+# Proportion of variance explained & scree plot:
+pve_word <- (pca_word$sdev)^2 / sum(pca_word$sdev^2)
+plot(pve_word, type = "b", xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", main = "Scree Plot")
+# INSERT COMMENT: Similar to the shape by state data, this word count by state
+# data also seems to be boiled down to a few patterns/ principle components. The
+# majority of the variance is described by the first few principle components. 
+# The proportion of variance defined by latter PCs dwindle.
+
+# Scatterplot:
+pca_word_df <- as.data.frame(pca_word$x)
+
+ggplot(pca_word_df, aes(x = PC1, y = PC2)) +
+  geom_point(color = "steelblue", size = 3) +
+  labs(title = "Word Count PC1 vs PC2",
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme_minimal()
+# INSERT COMMENT: Similarly to the shape scatterplot, the majority of states 
+# seem to be in one cluster. There are again two states that seem to be outliers.
+
+# PCA rotation:
+rotation_word_tbl <- as.data.frame(pca_word$rotation) %>%
+  round(3) %>% .[,c(1,2)] %>% 
+  rownames_to_column(var = "Variable")
+print(rotation_word_tbl)
+# INSERT COMMENT: The words "bright", "light", "star", "across", "orb", 
+# and "blinking" do suggest correlation with the shapes that were observed to be
+# of primary drivers in the previous PCA. In general, the shapes that were most 
+# similarly described in this PCA are light", "sphere", "unknown" and "disk". 
+# The shapes "rectangle" and "cube" are less accurately described by these top words.
