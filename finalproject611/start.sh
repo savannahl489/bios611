@@ -3,4 +3,5 @@ docker run -e USERID=$(id -u) -e GROUPID=$(id -g)\
   -v $(pwd):/home/rstudio/work\
   -v $HOME/.ssh:/home/rstudio/.ssh\
   -v $HOME/.gitconfig:/home/rstudio/.gitconfig\
-  -p 8797:8787 rocker/verse
+  -p 8797:8787 myfinalproject611\
+  -e PASSWORD=1234
