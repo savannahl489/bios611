@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 np.random.seed(123)
-output_dir = "derived_data"
+output_dir = "derived_data_1"
 
 # Create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)

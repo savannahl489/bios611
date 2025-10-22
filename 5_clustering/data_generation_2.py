@@ -1,6 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
+import os
+import pandas as pd
+
+np.random.seed(123)
+output_dir = "derived_data_2"
+
+# Create directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
 
 def generate_shell_clusters(n_shells, k_per_shell, max_radius, noise_sd=0.1):
     """
@@ -44,12 +53,56 @@ def generate_shell_clusters(n_shells, k_per_shell, max_radius, noise_sd=0.1):
     # Combine all shell points into a single array
     return np.vstack(all_points)
 
-# Generate data
+# Generate sample data
 points = generate_shell_clusters(n_shells=4, k_per_shell=500, max_radius=5.0, noise_sd=0.2)
 
-# Plot
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(111, projection='3d')
-ax.scatter(points[:, 0], points[:, 1], points[:, 2], s=2, alpha=0.6)
-ax.set_title("Concentric 3D Shell Clusters")
-plt.show()
+# To make sure data has correct structure, generate plot:
+def save_interactive_3d_plot(points, filename="shell_clusters.html"):
+    fig = go.Figure(
+        data=[
+            go.Scatter3d(
+                x=points[:, 0],
+                y=points[:, 1],
+                z=points[:, 2],
+                mode='markers',
+                marker=dict(
+                    size=2,
+                    color='blue',
+                    opacity=0.6
+                )
+            )
+        ]
+    )
+    fig.update_layout(
+        title="Concentric 3D Shell Clusters",
+        scene=dict(
+            xaxis_title='X',
+            yaxis_title='Y',
+            zaxis_title='Z'
+        ),
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+
+    # Save as interactive HTML
+    fig.write_html(filename)
+    print(f"Interactive plot saved as '{filename}'")
+
+
+save_interactive_3d_plot(points, "shell_clusters.html")
+
+# To generate the dataset for simulation and save as CSV:
+df_dict = {}
+
+for max_radius in range(10, -1, -1):
+
+    key = f"_{max_radius}"
+    df_dict[key] = generate_shell_clusters(n_shells=4, k_per_shell=100, max_radius=max_radius, noise_sd=0.1)
+    col_names = [f"d{i+1}" for i in range(3)]
+
+    # Create DataFrame
+    df = pd.DataFrame(df_dict[key], columns=col_names)
+
+    # Save to CSV
+    filename = f"{output_dir}/df_{key}.csv"
+    df.to_csv(filename, index=False)
+    print(f"Saved {filename}")
