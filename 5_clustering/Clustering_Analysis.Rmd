@@ -34,25 +34,49 @@ df_list <- file_list %>%
 
 n <- c(2:6)
 side_length <- c(1,10,2:9)
-side_length
 ```
 
 ## Clustergap Simulations:
 
-For each dataset, I will run the cluster gap function. Then, I will visualize the results.
-***NOT SURE IF NEEDED***
-```{r}
-estim_cluster <- c()
-for(df_name in names(df_list)){
-  df <- df_list [[df_name]]
-  cg <- clusGap(df %>% as.matrix(), kmeans, nstart = 20, iter.max = 50, K.max = 10, B = 10)
-  plot(cg, main = glue("Cluster Gap for Dataset {df_name}"), xlab = "Number of Clusters")
+For each data set, I will run the cluster gap function. Then, I will visualize the results. The code chunk below will plot the clustergap results for each individual dataset. I have chosen not to run it, but if plots are needed, then they can be run.
+
+```{r,eval=FALSE, results = 'hide'}
+
+# to save these plots:
+if (!dir.exists("figures")) {
+  dir.create("figures")
 }
+#creation of plots:
+
+for (df_name in names(df_list)) {
+  df <- df_list[[df_name]]
+  cg <- clusGap(df %>% as.matrix(), kmeans, nstart = 20, iter.max = 50, K.max = 11, B = 10)
+  
+  # Define file path
+  filename <- file.path("figures", paste0("gap_plot_", df_name, ".png"))
+  
+  # Open PNG device
+  png(filename, width = 800, height = 600)
+  
+  # Create the plot
+  plot(cg,
+       main = glue("Cluster Gap for Dataset {df_name}"),
+       xlab = "Number of Clusters")
+  
+  # Close the plotting device (saves the file)
+  dev.off()
+  
+  message("Saved: ", filename)
+}
+
 ```
 
-These plots show the Gap statistics by the number of clusters for each dataset generated. As the range for the possible number of clusters is iterated through, a gap statistic is calculated for each potential number of clusters. This gap statistic compares the within cluster dispersion in the data and compares it to that of randomized data. The number of clusters associated with the largest value of the gap statistic is the optimal number of clusters supported by the dataset. 
+The plots generated from the code chunk above will show the Gap statistics by the number of clusters for each dataset generated. As the range for the possible number of clusters is iterated through, a gap statistic is calculated for each potential number of clusters. This gap statistic compares the within cluster dispersion in the data and compares it to that of randomized data. The number of clusters associated with the largest value of the gap statistic is the optimal number of clusters supported by the dataset. 
 
 ## Plotting Estimated Number of Clusters by Side Length
+
+To create the estimated number of clusters by side_length plot, I will first divide df_list into lists of datasets by their values of n. Then, I will run the clusGap function on each individual list, saving the optimal number of clusters for each dataset. Lastly, I will generate five plots, one per n value.
+
 ```{r}
 D2 <- df_list[grepl("^df_2_", names(df_list))]
 D3 <- df_list[grepl("^df_3_", names(df_list))]
@@ -80,7 +104,7 @@ estimate_clusters <- function(df_list, n_value) {
     # Run clusGap (you can increase B later)
     set.seed(123)
     
-    gap <- clusGap(df, FUN = kmeans, K.max = 10, nstart = 20, iter.max = 50, B= 10)
+    gap <- clusGap(df, FUN = kmeans, K.max = n_value + 5, nstart = 20, iter.max = 50, B= 10)
     
     # Get optimal number of clusters using firstSEmax
     opt_nc <- maxSE(gap$Tab[,"gap"], gap$Tab[,"SE.sim"], method = "firstSEmax")
