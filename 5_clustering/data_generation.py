@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 
+np.random.seed(123)
 output_dir = "derived_data"
 
 # Create directory if it doesn't exist
