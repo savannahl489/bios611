@@ -45,7 +45,7 @@ figures_1/cluster_gap_grid.png: figures_1 Clustering_Analysis.Rmd
 figures_2/Spectral_Cluster_Max_Radius.png : figures_2 Clustering_Analysis.Rmd 
 	Rscript -e "rmarkdown::render('Clustering_Analysis.Rmd')"
 
-Clustering_Analysis.pdf: Clustering_Analysis.Rmd 
+Clustering_Analysis.pdf: derived_data_2 derived_data_1 Clustering_Analysis.Rmd 
 	Rscript -e "rmarkdown::render('Clustering_Analysis.Rmd')"
 
 	

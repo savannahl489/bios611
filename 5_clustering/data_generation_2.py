@@ -10,6 +10,7 @@ output_dir = "derived_data_2"
 
 # Create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
+os.makedirs("figures_2", exist_ok=True)
 
 def generate_shell_clusters(n_shells, k_per_shell, max_radius, noise_sd=0.1):
     """
