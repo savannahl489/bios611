@@ -57,7 +57,7 @@ def generate_shell_clusters(n_shells, k_per_shell, max_radius, noise_sd=0.1):
 points = generate_shell_clusters(n_shells=4, k_per_shell=500, max_radius=5.0, noise_sd=0.2)
 
 # To make sure data has correct structure, generate plot:
-def save_interactive_3d_plot(points, filename="shell_clusters.html"):
+def save_interactive_3d_plot(points, filename="figures_2/shell_clusters.html"):
     fig = go.Figure(
         data=[
             go.Scatter3d(

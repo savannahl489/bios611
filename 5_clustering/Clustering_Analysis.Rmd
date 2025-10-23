@@ -1,5 +1,5 @@
 ---
-title: "HW5:Clustering"
+title: "HW5: Clustering"
 author: "Savannah"
 date: "2025-10-21"
 output: pdf_document
@@ -15,7 +15,6 @@ library(tidyverse)
 library(cluster)
 library(glue)
 library(gridExtra)
-library(factoextra)
 ```
 
 
@@ -39,40 +38,7 @@ side_length <- c(1,10,2:9)
 
 ## Clustergap Simulations:
 
-For each data set, I will run the cluster gap function. Then, I will visualize the results. The code chunk below will plot the clustergap results for each individual dataset. I have chosen not to run it, but if plots are needed, then they can be run.
-
-```{r,eval=FALSE, results = 'hide'}
-
-# to save these plots:
-if (!dir.exists("figures_1")) {
-  dir.create("figures_1")
-}
-#creation of plots:
-
-for (df_name in names(df_list)) {
-  df <- df_list[[df_name]]
-  cg <- clusGap(df %>% as.matrix(), kmeans, nstart = 20, iter.max = 50, K.max = 11, B = 10)
-  
-  # Define file path
-  filename <- file.path("figures", paste0("gap_plot_", df_name, ".png"))
-  
-  # Open PNG device
-  png(filename, width = 800, height = 600)
-  
-  # Create the plot
-  plot(cg,
-       main = glue("Cluster Gap for Dataset {df_name}"),
-       xlab = "Number of Clusters")
-  
-  # Close the plotting device (saves the file)
-  dev.off()
-  
-  message("Saved: ", filename)
-}
-
-```
-
-The plots generated from the code chunk above will show the Gap statistics by the number of clusters for each dataset generated. As the range for the possible number of clusters is iterated through, a gap statistic is calculated for each potential number of clusters. This gap statistic compares the within cluster dispersion in the data and compares it to that of randomized data. The number of clusters associated with the largest value of the gap statistic is the optimal number of clusters supported by the dataset. 
+For each data set, I will run the cluster gap function. Then, I will visualize the results via a plot of estimated clusters by side_length. 
 
 ## Plotting Estimated Number of Clusters by Side Length
 
@@ -167,11 +133,12 @@ From these plots, we find that for n = 2, the optimal number of clusters is pred
 
 To save it separately as a figure:
 ```{r, results='hide'}
-if (!dir.exists("figures")) {
-  dir.create("figures")
+
+if (!dir.exists("figures_1")) {
+  dir.create("figures_1")
 }
 
-png("figures/cluster_gap_grid.png", width = 1000, height = 800)
+png("figures_1/cluster_gap_grid.png", width = 1000, height = 800)
 
 grid.arrange(p2, p3, p4, p5, p6, ncol = 2)
 
@@ -270,7 +237,7 @@ Spectral <- function(x,k){
   L <- Laplacian(A)
   V_set <- as.matrix(Eigenvectors(L, k))
   
-  kmeans(V_set, k)
+  return(list(cluster = kmeans(V_set, k)$cluster))
 }
 
 
@@ -302,6 +269,21 @@ results2 <- bind_rows(results)
 ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
   geom_point() + geom_line() + ggtitle("n = 4")+ 
   geom_hline(yintercept = 4, linetype = "dashed", color = "red")
+
+
+```
+```{r}
+if (!dir.exists("figures_2")) {
+  dir.create("figures_2")
+}
+
+png("figures_2/Spectral_Cluster_Max_Radius.png", width = 1000, height = 800)
+
+ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
+  geom_point() + geom_line() + ggtitle("n = 4")+ 
+  geom_hline(yintercept = 4, linetype = "dashed", color = "red")
+
+invisible(dev.off())
 ```
 
 While the algorithm does not perform all that well, it seems as though the performance is particularly poor upon reaching a max_radius of 3 and below. I believe the algorithm would perform better if the d_threshold was decreased potentially, as that would force the identification of more tight-knit clusters and worse if the d_threshold were increased (would result in harder identification of clusters and more room for error).
