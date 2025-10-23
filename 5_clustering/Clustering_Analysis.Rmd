@@ -266,7 +266,7 @@ Putting it all together:
 
 Spectral <- function(x,k){
   # x is the dataset, k is the number of clusters (in our case, 4)
-  A <- adjmatrix(x, 1.0)
+  A <- adjmatrix(x, 1)
   L <- Laplacian(A)
   V_set <- as.matrix(Eigenvectors(L, k))
   
@@ -304,4 +304,4 @@ ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
   geom_hline(yintercept = 4, linetype = "dashed", color = "red")
 ```
 
-
+While the algorithm does not perform all that well, it seems as though the performance is particularly poor upon reaching a max_radius of 3 and below. I believe the algorithm would perform better if the d_threshold was decreased potentially, as that would force the identification of more tight-knit clusters and worse if the d_threshold were increased (would result in harder identification of clusters and more room for error).
