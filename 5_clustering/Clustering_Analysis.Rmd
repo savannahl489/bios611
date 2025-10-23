@@ -253,7 +253,7 @@ for (name in names(df_list2)) {
   opt_nc <- maxSE(gap$Tab[,"gap"], gap$Tab[,"SE.sim"], method = "firstSEmax")
   results[[name]] <- tibble(
     dataset = name,
-    max_radius = as.integer(sub("df__", "", name)),
+    max_radius = as.integer(sub("df_", "", name)),
     optimal_num_clusters = opt_nc
   
   )
@@ -266,6 +266,8 @@ results2 <- bind_rows(results)
 ## Plotting the Results:
 
 ```{r}
+results2
+
 ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
   geom_point() + geom_line() + ggtitle("n = 4")+ 
   geom_hline(yintercept = 4, linetype = "dashed", color = "red")

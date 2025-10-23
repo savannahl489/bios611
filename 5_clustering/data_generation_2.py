@@ -88,7 +88,7 @@ def save_interactive_3d_plot(points, filename="figures_2/shell_clusters.html"):
     print(f"Interactive plot saved as '{filename}'")
 
 
-save_interactive_3d_plot(points, "shell_clusters.html")
+save_interactive_3d_plot(points, "figures_2/shell_clusters.html")
 
 # To generate the dataset for simulation and save as CSV:
 df_dict = {}
@@ -103,6 +103,6 @@ for max_radius in range(10, -1, -1):
     df = pd.DataFrame(df_dict[key], columns=col_names)
 
     # Save to CSV
-    filename = f"{output_dir}/df_{key}.csv"
+    filename = f"{output_dir}/df{key}.csv"
     df.to_csv(filename, index=False)
     print(f"Saved {filename}")
