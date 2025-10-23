@@ -15,6 +15,7 @@ library(tidyverse)
 library(cluster)
 library(glue)
 library(gridExtra)
+library(factoextra)
 ```
 
 
@@ -25,7 +26,7 @@ library(gridExtra)
 From the data_generation.py file, I generated the necessary datasets according to the directions on the PDF. I will now proceed to load all datasets.
 
 ```{r, message=FALSE}
-file_list <- list.files("derived_data", pattern = "*.csv", full.names = TRUE)
+file_list <- list.files("derived_data_1", pattern = "*.csv", full.names = TRUE)
 
 # Read all CSVs into a named list of data frames
 df_list <- file_list %>%
@@ -43,8 +44,8 @@ For each data set, I will run the cluster gap function. Then, I will visualize t
 ```{r,eval=FALSE, results = 'hide'}
 
 # to save these plots:
-if (!dir.exists("figures")) {
-  dir.create("figures")
+if (!dir.exists("figures_1")) {
+  dir.create("figures_1")
 }
 #creation of plots:
 
@@ -86,8 +87,10 @@ D6 <- df_list[grepl("^df_6_", names(df_list))]
 
 ```
 
+
 ```{r}
 estimate_clusters <- function(df_list, n_value) {
+  
   results <- list()
   
   for (name in names(df_list)) {
@@ -118,17 +121,18 @@ estimate_clusters <- function(df_list, n_value) {
     )
   }
   
+  
   # Combine and return
   bind_rows(results)
 }
 ```
 
-```{r, results = 'hide'}
+```{r}
 gap_D2 <- estimate_clusters(D2, n_value = 2)
 gap_D3 <- estimate_clusters(D3, n_value = 3)
 gap_D4 <- estimate_clusters(D4, n_value = 4)
 gap_D5 <- estimate_clusters(D5, n_value = 5)
-gap_D6 <- estimate_clusters(D6, n_value = 6)
+estimate_clusters(D6, n_value = 6)
 ```
 
 Now, I will first plot each gap statistic, and then I want to combine all of these ggplots into one figure for simplicity. 
@@ -159,7 +163,7 @@ grid.arrange(p2, p3, p4, p5, p6, ncol = 3)
 
 ```
 
-From these plots, we find that for n = 2, the optimal number of clusters is predicted is reduced after side_length = 1. For n = 3, n = 4 and n = 6, the optimal number of clusters is reduced for side_length < 3. At n = 5, side_length < 4 is when the optimal number of clusters is reduced.
+From these plots, we find that for n = 2, the optimal number of clusters is predicted is reduced after side_length = 1. For n = 3 and 4, the optimal number of clusters is reduced for side_length < 3. At n = 5, side_length < 4 is when the optimal number of clusters is reduced. Under n = 6, side_length < 5 is when the estimated number of clusters drastically reduces.
 
 To save it separately as a figure:
 ```{r, results='hide'}
@@ -171,8 +175,120 @@ png("figures/cluster_gap_grid.png", width = 1000, height = 800)
 
 grid.arrange(p2, p3, p4, p5, p6, ncol = 2)
 
-dev.off()
+invisible(dev.off())
+```
+# Task 2: Spectral Clustering on Concentric Shells
+
+This section will continue the work on task 2. The file data_generation_2.py has the beginning of this task, with the function for creating data, a test of the data generation function, an interactive plot of this sample data, and the creation as well as saving of the data sets with max radii from 10 to 0.
+
+Within this section, I will first implement the function to transform the data such that the clusters are differentiable with kmeans. Then, I will implement the clusGap function to see at which point clusters are more challenging to distinguish. Lastly, I will generate a plot of the estimated number of clusters by the maximum radius allowed.
+
+## Data Loading:
+
+```{r, message=FALSE}
+file_list <- list.files("derived_data_2", pattern = "*.csv", full.names = TRUE)
+
+# Read all CSVs into a named list of data frames
+df_list2 <- file_list %>%
+  set_names(~ basename(.) %>% tools::file_path_sans_ext()) %>%
+  map(read_csv)
+
 ```
 
+
+## Spectral Clustering Transformation Function
+
+```{r}
+# nested functions:
+
+# Adjacency Matrix Creation -
+
+adjmatrix <- function(data, d_threshold) {
+  data <- as.matrix(data)
+  
+  dist_matrix <- as.matrix(dist(data, method = "euclidean"))
+  adjacency_matrix <- ifelse(dist_matrix < d_threshold, 1, 0)
+  
+  diag(adjacency_matrix) <- 0 #doesn't make sense for a node to have a euclidean distance with itself
+  
+  return(adjacency_matrix)
+}
+  
+# Normalized Laplacian Function - 
+
+Laplacian <- function(adj_matrix) {
+  
+  adj_matrix <- as.matrix(adj_matrix)
+  degree_vector <- rowSums(adj_matrix)
+  D <- diag(degree_vector)
+  L <- D - adj_matrix
+  
+  # avoid division by zero
+  inv_sqrt_deg <- 1 / sqrt(degree_vector)
+  inv_sqrt_deg[!is.finite(inv_sqrt_deg)] <- 0  # set Inf or NaN to 0
+  
+  D_inv_sqrt <- diag(inv_sqrt_deg)
+  
+  # symmetric normalized Laplacian
+  L_sym <- D_inv_sqrt %*% L %*% D_inv_sqrt
+  
+  return(L_sym)
+}
+
+# Eigendecomposition and Extracting the K Eigenvectors -
+
+Eigenvectors <- function(matrix_input, k) {
+  
+  # Ensure input is numeric matrix
+  matrix_input <- as.matrix(matrix_input)
+  
+  # Check if matrix is square
+  if (nrow(matrix_input) != ncol(matrix_input)) {
+    stop("Matrix must be square.")
+  }
+  
+  eig <- eigen(matrix_input)
+  
+  idx <- order(eig$values)
+  eigenvectors <- eig$vectors[, idx[1:k], drop = FALSE]
+  
+  
+  # Return as numeric matrix
+  return(eigenvectors)
+}
+```
+
+Putting it all together:
+
+```{r}
+# Full Spectral Clustering Transformation Function - 
+
+Spectral <- function(x,k){
+  # x is the dataset, k is the number of clusters (in our case, 4)
+  A <- adjmatrix(x, 1.0)
+  L <- Laplacian(A)
+  V_set <- as.matrix(Eigenvectors(L, k))
+  Clusters <- kmeans(V_set, centers = 4)
+  
+  gap <- clusGap(x, FUN = kmeans, K.max = k + 5, nstart = 10, iter.max = 50, B= 10)
+  opt_nc <- maxSE(gap$Tab[,"gap"], gap$Tab[,"SE.sim"], method = "firstSEmax")
+  
+  return(list(low_dim_data = V_set, clust_assign = Clusters, estim_clus = opt_nc))
+}
+
+
+```
+
+```{r, message=FALSE}
+results <- list()
+
+for (name in names(df_list2)) {
+  results[[name]] <- tibble(
+    dataset = name,
+    max_radius = as.integer(sub("df__", "", name)),
+    optimal_num_clusters = Spectral(df_list2[[name]], 4)$estim_clus
+  )
+}
+```
 
 
