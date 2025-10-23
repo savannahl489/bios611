@@ -127,12 +127,12 @@ estimate_clusters <- function(df_list, n_value) {
 }
 ```
 
-```{r}
+```{r, results = 'hide'}
 gap_D2 <- estimate_clusters(D2, n_value = 2)
 gap_D3 <- estimate_clusters(D3, n_value = 3)
 gap_D4 <- estimate_clusters(D4, n_value = 4)
 gap_D5 <- estimate_clusters(D5, n_value = 5)
-estimate_clusters(D6, n_value = 6)
+gap_D6 <- estimate_clusters(D6, n_value = 6)
 ```
 
 Now, I will first plot each gap statistic, and then I want to combine all of these ggplots into one figure for simplicity. 
@@ -256,6 +256,7 @@ Eigenvectors <- function(matrix_input, k) {
   # Return as numeric matrix
   return(eigenvectors)
 }
+
 ```
 
 Putting it all together:
@@ -268,27 +269,39 @@ Spectral <- function(x,k){
   A <- adjmatrix(x, 1.0)
   L <- Laplacian(A)
   V_set <- as.matrix(Eigenvectors(L, k))
-  Clusters <- kmeans(V_set, centers = 4)
   
-  gap <- clusGap(x, FUN = kmeans, K.max = k + 5, nstart = 10, iter.max = 50, B= 10)
-  opt_nc <- maxSE(gap$Tab[,"gap"], gap$Tab[,"SE.sim"], method = "firstSEmax")
-  
-  return(list(low_dim_data = V_set, clust_assign = Clusters, estim_clus = opt_nc))
+  kmeans(V_set, k)
 }
 
 
 ```
 
-```{r, message=FALSE}
+```{r, results='hide'}
+set.seed(123)
 results <- list()
 
 for (name in names(df_list2)) {
+  df <- df_list2[[name]]
+  gap <- clusGap(df, FUN = Spectral, K.max = 10, B= 10)
+  opt_nc <- maxSE(gap$Tab[,"gap"], gap$Tab[,"SE.sim"], method = "firstSEmax")
   results[[name]] <- tibble(
     dataset = name,
     max_radius = as.integer(sub("df__", "", name)),
-    optimal_num_clusters = Spectral(df_list2[[name]], 4)$estim_clus
+    optimal_num_clusters = opt_nc
+  
   )
 }
+
+results2 <- bind_rows(results)
+
+```
+
+## Plotting the Results:
+
+```{r}
+ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
+  geom_point() + geom_line() + ggtitle("n = 4")+ 
+  geom_hline(yintercept = 4, linetype = "dashed", color = "red")
 ```
 
 
