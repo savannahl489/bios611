@@ -288,4 +288,4 @@ ggplot(results2, aes(x = max_radius, y = optimal_num_clusters)) +
 invisible(dev.off())
 ```
 
-While the algorithm does not perform all that well, it seems as though the performance is particularly poor upon reaching a max_radius of 3 and below. I believe the algorithm would perform better if the d_threshold was decreased potentially, as that would force the identification of more tight-knit clusters and worse if the d_threshold were increased (would result in harder identification of clusters and more room for error).
+While the algorithm does not perform all that well and is very erratic, it seems as though the performance is particularly poor when the max radius is either too large or too small. I believe the algorithm would perform better if the number of points per cluster were increased, as that would force the clusters to be more dense. If the d_threshold were increased, I believe the algorithm would perform worse on smaller max_radius values. On the other hand, if the d_threshold were decreased, I believe it would perform better on smaller max_radius values as it would be looking for more tight-knit clusters.
