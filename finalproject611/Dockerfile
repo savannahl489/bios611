@@ -1,2 +1,2 @@
 FROM rocker/verse
-RUN R -e "install.packages('matlab', 'RSQLite', 'DBI', 'plotly')"
+RUN R -e "install.packages(c('RSQLite', 'DBI'))"
