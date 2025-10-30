@@ -1,0 +1,47 @@
+---
+title: "Report"
+output: pdf_document
+date: "2025-10-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+#libraries:
+
+library(tidyverse)
+
+# dataloading:
+
+ade <- read.csv('source_data/ad_events.csv')
+ads <- read.csv('derived_data/ads_cleaned.csv')
+camp <- read.csv('source_data/campaigns.csv')
+users <- read.csv('derived_data/user_cleaned.csv')
+comp1 <- read.csv('derived_data/composite_data1.csv')
+comp2 <- read.csv('derived_data/composite_data2.csv')
+```
+
+# Data Exploration (EDA):
+
+This EDA will be a composite of a couple of sections, designed to answer specific questions. The source data is in the folder source_data and is from Kaggle. I chose this collection of datasets for three primary reasons. The first being its relation to the marketing industry and the second being it a collection of smaller datasets rather than one huge dataset. The third is cleanliness of the datasets themselves.
+
+Looking at the composite data, it seems as though the data is very clean (no NAs and no glaring errors in data entries), which makes sense as the data description from kaggle did mention that it was very clean and easy to work with. Just looking at the datasets overall, I believe that this data likely originates from one of two sources. It is either human generated (artificial) or real data already pre-processed by an experienced data handler as the encodings for categorical variables like target_interests from the ads.csv dataset (source data) and the interests in the users.csv dataset (source data) columns match exactly in terms of categories. This is highly unlikely in the real world and thus leads to such guesses.
+
+```{r, eval=FALSE}
+# set to eval = false, but can run as needed
+
+# No NA values:
+which(is.na(comp2))
+
+# Do target_interests align with the same as user interests?
+
+setdiff(names(user2), names(ads2)) # Yes
+```
+
+The rest of this EDA will be split into three sections, aiming to answer the following three questions:
+0.1) Are there certain users who out-interact the other users (outliers in terms of number of interactions)?
+0.2) Do certain interests get more interactions online? Perhaps technology for instance?
+0.3) What does the distribution of age of users look like?
+

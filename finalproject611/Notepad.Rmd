@@ -11,60 +11,107 @@ library(tidyverse)
 # dataloading:
 
 ade <- read.csv('source_data/ad_events.csv')
-ads <- read.csv('source_data/ads.csv')
+ads <- read.csv('derived_data/ads_cleaned.csv')
 camp <- read.csv('source_data/campaigns.csv')
-user <- read.csv('source_data/users.csv')
-```
-
-```{r}
-# definitely want to merge ade with ads and camp
-# need to correct target_interests in ads and interests in user
-# could merge ade composite with user via id
-# goal for derived data: have three datasets, one composite of all datasets using ade as backbone, one for user, one for just ads, ade and camp together
-```
-
-```{r}
-# cleaning up ads and users interests variable with onehot encoding
-user2 <- user %>%
-  mutate(user_interests = strsplit(interests, ",\\s*")) %>%  # split by comma + optional space
-  unnest(user_interests) %>%
-  mutate(value = 1) %>%
-  pivot_wider(
-    names_from = user_interests,
-    values_from = value,
-    values_fill = 0
-  )
-
-user2
-write.csv(user2, 'derived_data/user_cleaned.csv')
-```
-
-```{r}
-ads2 <- ads %>%
-  mutate(target_interests = strsplit(target_interests, ",\\s*")) %>%  # split by comma + optional space
-  unnest(target_interests) %>%
-  mutate(value = 1) %>%
-  pivot_wider(
-    names_from = target_interests,
-    values_from = value,
-    values_fill = 0
-  )
-
-write.csv(ads2, 'derived_data/ads_cleaned.csv')
-```
-
-```{r}
-comp1 <- ade %>% left_join(ads2, by = 'ad_id' ) %>% left_join(camp, by = 'campaign_id')
-write.csv(comp1, 'derived_data/composite_data1.csv')
+users <- read.csv('derived_data/user_cleaned.csv')
+comp1 <- read.csv('derived_data/composite_data1.csv')
+comp2 <- read.csv('derived_data/composite_data2.csv')
 ```
 
 
-Questions that I want answered after data derivation:
-0) How clean is this data? NAs, encodings? outliers?
+
+# Data Exploration: A trial
+
+Questions I want to answer:
+0) How clean is this data? NAs, encodings?
+0.1) are there certain users who out-interact the other users
+0.2) Do certain interests get more interactions online? perhaps technology for instance?
 1) What does the distribution of age of users look like?
+
+```{r}
+
+interact_count <- comp2 %>% group_by(user_id) %>% summarise(count = n())
+
+ggplot(interact_count, aes(x = count)) +
+  geom_histogram(
+    bins = 30, 
+    fill = "#4B9CD3",    
+    color = "white",  
+    alpha = 0.9
+  ) +
+  labs(
+    title = "Distribution of User Interaction Counts",
+    x = "Interaction Count",
+    y = "Number of Users"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
+    axis.title = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+ggsave("figures/interaction_count_histogram.png", width = 7, height = 5, dpi = 300)
+
+```
+
+The histogram shows a huge axis... which made me question why it did when all the observations seem grouped to one side. Thus, I am making a boxplot of this data to see what in the world is going on...
+
+```{r}
+ggplot(interact_count, aes(y = count)) +
+  geom_boxplot(
+    fill = "#4B9CD3",    # Carolina blue fill
+    color = "#003366",   # dark navy border
+    outlier.color = "#003366",
+    outlier.alpha = 0.7,
+    width = 0.3
+  ) +
+  labs(
+    title = "Distribution of User Interaction Counts",
+    subtitle = "Boxplot showing spread and outliers of user interaction counts",
+    y = "Interaction Count",
+    x = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(
+      face = "bold", size = 16, hjust = 0.5, color = "#003366"
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5, color = "#4B9CD3", size = 12
+    ),
+    axis.title.y = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+```
+It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what their interests/ what type of users and what platforms these users are on.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Questions that I want answered after data exploration:
 2) Do campaigns/ ads actually draw in people of their target interest? On a similar note, do ads/ campaigns draw in the gender they want to draw in?
 3) How does budget factor into the campaign? does higher budget = more people of that interest interacting with ads? Computation of a ratio of budget per day???
-4) How does summer, winter/ seasons differ in terms of ad interactions? are there differences between the seasons? *Would probably want to take a look at those seasons as a separate variable???
+4) How does summer, winter/ seasons differ in terms of ad interactions? are there differences between the seasons? *Would probably want to take a look at those seasons as a separate variable??? *** be careful about the seasons, bc the dates do not match up... might be better to split as some sort of month or quarter intervals?
 5) Relationship between platform, type of ad, and interactions and type of user
 6) Relationship between type of user and time of day
 7) Relationship between platform and location of user?
