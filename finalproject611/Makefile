@@ -5,6 +5,7 @@ derived_data/user_cleaned.csv\
 derived_data/ads_cleaned.csv\
 derived_data/composite_data1.csv\
 figures/interaction_count_histogram.png\
+figures/interaction_count_boxplot.png
 
 clean:
 	rm -rf derived_data
@@ -37,4 +38,7 @@ derived_data/composite_data2.csv: derived_data \
 	Rscript DataClean1.R
 	
 figures/interaction_count_histogram.png: derived_data/composite_data2 figures Report.Rmd
+	Rscript -e "rmarkdown::render('Report.Rmd')"
+	
+figures/interaction_count_boxplot.png: derived_data/composite_data2 figures Report.Rmd
 	Rscript -e "rmarkdown::render('Report.Rmd')"

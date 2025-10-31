@@ -45,3 +45,71 @@ The rest of this EDA will be split into three sections, aiming to answer the fol
 0.2) Do certain interests get more interactions online? Perhaps technology for instance?
 0.3) What does the distribution of age of users look like?
 
+## 0.1
+
+To answer this question, I wanted to first visualize a distribution of the number of interactions per user.
+```{r}
+interact_count <- comp2 %>% group_by(user_id) %>% summarise(count = n())
+
+ggplot(interact_count, aes(x = count)) +
+  geom_histogram(
+    bins = 30, 
+    fill = "#4B9CD3",    
+    color = "white",  
+    alpha = 0.9
+  ) +
+  labs(
+    title = "Distribution of User Interaction Counts",
+    x = "Interaction Count",
+    y = "Number of Users"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
+    axis.title = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+ggsave("figures/interaction_count_histogram.png", width = 7, height = 5, dpi = 300)
+
+```
+
+The histogram shows a huge range for the x axis, which makes me question why when all the observations seem grouped to one side. Thus, I am making a boxplot of this data to see what in the world is going on.
+
+```{r}
+ggplot(interact_count, aes(y = count)) +
+  geom_boxplot(
+    fill = "#4B9CD3",    # Carolina blue fill
+    color = "#003366",   # dark navy border
+    outlier.color = "#003366",
+    outlier.alpha = 0.7,
+    width = 0.3
+  ) +
+  labs(
+    title = "Distribution of User Interaction Counts",
+    subtitle = "Boxplot showing spread and outliers of user interaction counts",
+    y = "Interaction Count",
+    x = NULL
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(
+      face = "bold", size = 16, hjust = 0.5, color = "#003366"
+    ),
+    plot.subtitle = element_text(
+      hjust = 0.5, color = "#4B9CD3", size = 12
+    ),
+    axis.title.y = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+ggsave("figures/interaction_count_boxplot.png", width = 7, height = 5, dpi = 300)
+```
+It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what their interests/ what type of users and what platforms these users are on.
