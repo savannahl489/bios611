@@ -1,6 +1,8 @@
 ---
 title: "Report"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 date: "2025-10-30"
 ---
 
@@ -16,11 +18,11 @@ library(tidyverse)
 # dataloading:
 
 ade <- read.csv('source_data/ad_events.csv')
-ads <- read.csv('derived_data/ads_cleaned.csv')
+ads <- read.csv('derived_data/ads_cleaned.csv') %>% select(-X)
 camp <- read.csv('source_data/campaigns.csv')
-users <- read.csv('derived_data/user_cleaned.csv')
-comp1 <- read.csv('derived_data/composite_data1.csv')
-comp2 <- read.csv('derived_data/composite_data2.csv')
+users <- read.csv('derived_data/user_cleaned.csv') %>% select(-X)
+comp1 <- read.csv('derived_data/composite_data1.csv') %>% select(-X)
+comp2 <- read.csv('derived_data/composite_data2.csv') %>% select(-X)
 ```
 
 # Data Exploration (EDA):
@@ -49,7 +51,8 @@ The rest of this EDA will be split into three sections, aiming to answer the fol
 
 To answer this question, I wanted to first visualize a distribution of the number of interactions per user.
 ```{r}
-interact_count <- comp2 %>% group_by(user_id) %>% summarise(count = n())
+interact_count <- comp2 %>% group_by(user_id) %>% summarise(count = n()) %>%
+  left_join(users, by = 'user_id')
 
 ggplot(interact_count, aes(x = count)) +
   geom_histogram(
@@ -112,4 +115,63 @@ ggplot(interact_count, aes(y = count)) +
 
 ggsave("figures/interaction_count_boxplot.png", width = 7, height = 5, dpi = 300)
 ```
-It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what their interests/ what type of users and what platforms these users are on.
+It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what differentiates these users. I will look at three primary variables of potential interest: gender, age, and interests.
+
+Firstly, I've isolated out the specific datapoints that are outliers in the following code:
+
+```{r}
+# Compute quartiles and IQR
+Q1 <- quantile(interact_count$count, 0.25)
+Q3 <- quantile(interact_count$count, 0.75)
+IQR <- Q3 - Q1
+
+# Define lower and upper bounds
+lower_bound <- Q1 - 1.5 * IQR
+upper_bound <- Q3 + 1.5 * IQR
+
+# Create a label for each observation
+interact_count_outliers <- interact_count %>%
+  mutate(outlier_label = 
+           ifelse(count < lower_bound | 
+                    count > upper_bound, "Outlier", "Normal")) %>% 
+  filter(outlier_label == "Outlier")
+
+```
+
+Then, I will split these outliers into whether they have overinteracted or underinteracted.
+
+```{r}
+over_interact <- interact_count_outliers %>% filter(count > 36)
+under_interact <- interact_count_outliers %>% filter(count < 36)
+```
+
+### Gender
+
+Looking at gender, I mainly want to see if there is a significant difference in terms of count between the genders. I decided to use tables to show this:
+
+```{r}
+over_interact_gender <- over_interact %>% group_by(user_gender) %>% 
+  summarize(count_gender = n())
+
+under_interact_gender <- under_interact %>% group_by(user_gender) %>% 
+  summarize(count_gender = n())
+
+```
+```{r}
+og <- tableGrob(over_interact_gender)
+png("figures/overinteract_gender.png", width = 200, height = 100)
+grid.draw(og)
+invisible(dev.off())
+```
+```{r}
+ug <- tableGrob(under_interact_gender)
+png("figures/underinteract_gender.png", width = 200, height = 100)
+grid.draw(ug)
+invisible(dev.off())
+```
+
+![Distribution in Gender of Users Who Over-Interacted](figures/overinteract_gender.png)
+![Distribution in Gender of Users Who Under-Interacted](figures/underinteract_gender.png)
+For those who underinteracted, it is pretty difficult to tell if there is an association of any sort because there are so few observations. For those who overinteracted, it was surprising that so many users who identified as male. I might be a bit biased, but generally, those who often are on social media the most are female... so this could indicate a platform difference.
+
+

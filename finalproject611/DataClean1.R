@@ -11,7 +11,7 @@ user <- read.csv('source_data/users.csv')
 
 # cleaning up ads and users interests variable with onehot encoding
 
-user2 <- user %>%
+user2 <- user %>% 
   mutate(user_interests = strsplit(interests, ",\\s*")) %>%  # split by comma + optional space
   unnest(user_interests) %>%
   mutate(value = 1) %>%
@@ -19,7 +19,7 @@ user2 <- user %>%
     names_from = user_interests,
     values_from = value,
     values_fill = 0
-  )
+  ) %>% select(-interests)
 
 write.csv(user2, 'derived_data/user_cleaned.csv') # user_cleaned done
 
@@ -47,5 +47,6 @@ write.csv(comp1, 'derived_data/composite_data1.csv')
 
 # Full composite data created:
 
-comp2 <- ade %>% left_join(ads2, by = 'ad_id') %>% left_join(camp, by = 'campaign_id') %>% left_join(user2, by = 'user_id')
-write.csv(comp2, 'derived_data/composite_data2.csv')
+comp2 <- ade %>% left_join(ads2, by = 'ad_id') %>% 
+  left_join(camp, by = 'campaign_id') %>% left_join(user2, by = 'user_id')
+write.csv(comp2, 'derived_data/composite_data2.csv') 

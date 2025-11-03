@@ -1,2 +1,5 @@
-FROM rocker/verse
-RUN R -e "install.packages(c('RSQLite', 'DBI'))"
+FROM rocker/verse:latest
+
+
+# Install TinyTeX
+RUN R -e "install.packages('tinytex', 'gridExtra')"
