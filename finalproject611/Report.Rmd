@@ -115,7 +115,7 @@ ggplot(interact_count, aes(y = count)) +
 
 ggsave("figures/interaction_count_boxplot.png", width = 7, height = 5, dpi = 300)
 ```
-It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what differentiates these users. I will look at three primary variables of potential interest: gender, age, and interests.
+It looks like there are a handful of users who are highly interactive with these ads. It may be wise to filter into these users and look at what differentiates these users. I will look at four primary variables of potential interest: gender, age, country and interests.
 
 Firstly, I've isolated out the specific datapoints that are outliers in the following code:
 
@@ -225,12 +225,46 @@ ggplot(under_interact, aes(x = user_age)) +
   )
 ggsave('figures/underinteract_age.png', width = 7, height = 5, dpi = 300)
 ```
-The histogram of the distribution of ages for over-interactive users displays a general trend towards the younger ages, with a right tail. This trend is generally as expected given the heavier use of technology (especially social media) amongst the younger (but not too young) population. As seen in the histogram, the largest number of over-interactive users are between 20-30 years old. The majority of this population are typically very well versed in social media platforms and have access to such platforms. People of older ages often use social media less and those of ages less than 13 might have parental restrictions thus causing this distribution. The age distribution of those who under-interact are more difficult to establish reasoning or a pattern for. This is in part due to the limited number of users who are under-interacting to the point of being 'outliers'. With so few observations, the distribution of age in users who under-interact could be purely by chance.
+The histogram of the distribution of ages for over-interactive users displays a general trend towards the younger ages, with a right tail. This trend is generally as expected given the heavier use of technology (especially social media) amongst the younger (but not too young) population. As seen in the histogram, the largest number of over-interactive users are between 20-30 years old. The majority of this population are typically very well versed in social media platforms and have access to such platforms. People of older ages often use social media less and those of ages less than 13 might have parental restrictions thus causing this distribution. The age distribution of those who under-interact are more difficult to establish reasoning or a pattern for. This is in part due to the limited number of users who are under-interacting to the point of being 'outliers'. With so few observations, the distribution of age in users who under-interact could be purely by chance. In addition to the factors already mentioned, it is important to keep in mind the overall distribution of ages within the entire dataset. While the raw numbers of those ages 20-30 look high in comparison to the other ages, it is very possible that amongst the users observed within the entire dataset, there is an over-representation of users in that age range.
 
-### 
+### Country
+
+Following from the note on the distribution of the original dataset, in looking at the distribution of countries of origin for over-interactive and under-interactive users, I first computed the distribution in countries of origin of the dataset as a whole, and then looked at the proportion of users from each country who were in the over-interactive dataset and the under-interactive dataset. Below are the respective tables.
+
+```{r}
+over_interact_country <- over_interact %>% group_by(country) %>% 
+  summarize(count_country = n())
+
+under_interact_country <- under_interact %>% group_by(country) %>% 
+  summarize(count_country = n())
+
+# to get proportion of users within each country:
+
+interact_count_2 <- comp2 %>% group_by(user_id) %>% summarise(count = n()) %>%
+  left_join(users, by = 'user_id') %>% group_by(country) %>% 
+  summarize(total_country = n())
+
+ooc <- over_interact_country %>% inner_join(interact_count_2, by = "country") %>%
+  mutate(proportion = count_country / total_country)
+uuc <- under_interact_country %>% inner_join(interact_count_2, by = "country") %>%
+  mutate(proportion = count_country / total_country)
+```
 
 
+```{r}
+oc <- tableGrob(ooc)
+png("figures/overinteract_country.png")
+grid.draw(oc)
+invisible(dev.off())
+```
+```{r}
+uc <- tableGrob(uuc)
+png("figures/underinteract_country.png")
+grid.draw(uc)
+invisible(dev.off())
+```
 
+As seen here, while there is a significant raw count of people from the US who are over-interactive, the proportion of users from the US who were over-interactive is about average amongst the 10 countries. In particular, the proportion of users from Brazil and Mexico who were over-interactive were slightly higher than the others. Amongst those who were under-interactive, it would seem as though those from Canada and Mexico were slightly more than the others. This being said, the generalization of such a pattern would need further analysis.
 
 
 
