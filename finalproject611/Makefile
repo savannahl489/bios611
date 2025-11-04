@@ -10,7 +10,9 @@ figures/interaction_count_boxplot.png\
 figures/overinteract_age.png\
 figures/underinteract_age.png\
 figures/overinteract_country.png\
-figures/underinteract_country.png
+figures/underinteract_country.png\
+figures/underinteract_interests.png\
+
 
 clean:
 	rm -rf derived_data
@@ -59,3 +61,10 @@ figures/overinteract_country.png: derived_data/composite_data2.csv figures Repor
 	
 figures/underinteract_country.png: derived_data/composite_data2.csv figures Report.Rmd 
 	Rscript -e "rmarkdown::render('Report.Rmd')"
+	
+figures/underinteract_interests.png: derived_data/composite_data2.csv figures Report.Rmd 
+	Rscript -e "rmarkdown::render('Report.Rmd')"
+	
+figures/overinteract_interests.png: derived_data/composite_data2.csv figures Report.Rmd 
+	Rscript -e "rmarkdown::render('Report.Rmd')"
+	

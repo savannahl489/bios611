@@ -58,7 +58,9 @@ interact_count_outliers
 ```{r}
 over_interact <- interact_count_outliers %>% filter(count > 36)
 under_interact <- interact_count_outliers %>% filter(count < 36)
+
 ```
+
 
 
 
