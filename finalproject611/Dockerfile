@@ -1,5 +1,3 @@
 FROM rocker/verse:latest
 
-
-# Install TinyTeX
-RUN R -e "install.packages('tinytex', 'gridExtra')"
+RUN R -e "install.packages('gridExtra', dependencies=TRUE, repos='http://cran.rstudio.com/')"

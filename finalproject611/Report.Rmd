@@ -174,4 +174,70 @@ invisible(dev.off())
 ![Distribution in Gender of Users Who Under-Interacted](figures/underinteract_gender.png)
 For those who underinteracted, it is pretty difficult to tell if there is an association of any sort because there are so few observations. For those who overinteracted, it was surprising that so many users who identified as male. I might be a bit biased, but generally, those who often are on social media the most are female... so this could indicate a platform difference.
 
+### Age
+
+```{r}
+ggplot(over_interact, aes(x = user_age)) +
+  geom_histogram(
+    bins = 30, 
+    fill = "#4B9CD3",    
+    color = "white",  
+    alpha = 0.9
+  ) +
+  labs(
+    title = "Distribution in Age of Over-Active Users",
+    x = "Age",
+    y = "Number of Users"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
+    axis.title = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+ggsave('figures/overinteract_age.png', width = 7, height = 5, dpi = 300)
+```
+
+```{r}
+ggplot(under_interact, aes(x = user_age)) +
+  geom_histogram(
+    bins = 10, 
+    fill = "#4B9CD3",    
+    color = "white",  
+    alpha = 0.9
+  ) +
+  labs(
+    title = "Distribution in Age of Under-Active Users",
+    x = "Age",
+    y = "Number of Users"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
+    axis.title = element_text(face = "bold", color = "#003366"),
+    axis.text = element_text(color = "#333333"),
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "gray90"),
+    plot.background = element_rect(fill = "white", color = NA)
+  )
+ggsave('figures/underinteract_age.png', width = 7, height = 5, dpi = 300)
+```
+The histogram of the distribution of ages for over-interactive users displays a general trend towards the younger ages, with a right tail. This trend is generally as expected given the heavier use of technology (especially social media) amongst the younger (but not too young) population. As seen in the histogram, the largest number of over-interactive users are between 20-30 years old. The majority of this population are typically very well versed in social media platforms and have access to such platforms. People of older ages often use social media less and those of ages less than 13 might have parental restrictions thus causing this distribution. The age distribution of those who under-interact are more difficult to establish reasoning or a pattern for. This is in part due to the limited number of users who are under-interacting to the point of being 'outliers'. With so few observations, the distribution of age in users who under-interact could be purely by chance.
+
+### 
+
+
+
+
+
+
+
+
+
+
+
+
 

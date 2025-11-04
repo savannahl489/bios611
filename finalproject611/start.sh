@@ -1,3 +1,4 @@
+docker build . -t finalproject611
 docker run -it \
   -e USERID=$(id -u) \
   -e GROUPID=$(id -g) \

@@ -6,7 +6,9 @@ derived_data/ads_cleaned.csv\
 derived_data/composite_data1.csv\
 derived_data/composite_data2.csv\
 figures/interaction_count_histogram.png\
-figures/interaction_count_boxplot.png
+figures/interaction_count_boxplot.png\
+figures/overinteract_age.png\
+figures/underinteract_age.png\
 
 clean:
 	rm -rf derived_data
@@ -42,4 +44,10 @@ figures/interaction_count_histogram.png: derived_data/composite_data2.csv figure
 	Rscript -e "rmarkdown::render('Report.Rmd')"
 	
 figures/interaction_count_boxplot.png: derived_data/composite_data2.csv figures Report.Rmd
+	Rscript -e "rmarkdown::render('Report.Rmd')"
+
+figures/overinteract_age.png: derived_data/composite_data2.csv figures Report.Rmd 
+	Rscript -e "rmarkdown::render('Report.Rmd')"
+	
+figures/underinteract_age.png: derived_data/composite_data2.csv figures Report.Rmd 
 	Rscript -e "rmarkdown::render('Report.Rmd')"

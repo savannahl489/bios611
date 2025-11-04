@@ -60,62 +60,6 @@ over_interact <- interact_count_outliers %>% filter(count > 36)
 under_interact <- interact_count_outliers %>% filter(count < 36)
 ```
 
-```{r}
-ggplot(over_interact, aes(x = user_age)) +
-  geom_histogram(
-    bins = 30, 
-    fill = "#4B9CD3",    
-    color = "white",  
-    alpha = 0.9
-  ) +
-  labs(
-    title = "Distribution in Age of Over-Active Users",
-    x = "Age",
-    y = "Number of Users"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
-    axis.title = element_text(face = "bold", color = "#003366"),
-    axis.text = element_text(color = "#333333"),
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(color = "gray90"),
-    plot.background = element_rect(fill = "white", color = NA)
-  )
-ggsave('figures/overinteract_age.png', width = 7, height = 5, dpi = 300)
-```
-
-
-```{r}
-over_interact <- interact_count_outliers %>% filter(count > 36)
-under_interact <- interact_count_outliers %>% filter(count < 36)
-```
-
-```{r}
-ggplot(under_interact, aes(x = user_age)) +
-  geom_histogram(
-    bins = 10, 
-    fill = "#4B9CD3",    
-    color = "white",  
-    alpha = 0.9
-  ) +
-  labs(
-    title = "Distribution in Age of Under-Active Users",
-    x = "Age",
-    y = "Number of Users"
-  ) +
-  theme_minimal(base_size = 14) +
-  theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5, color = "#003366"),
-    axis.title = element_text(face = "bold", color = "#003366"),
-    axis.text = element_text(color = "#333333"),
-    panel.grid.minor = element_blank(),
-    panel.grid.major = element_line(color = "gray90"),
-    plot.background = element_rect(fill = "white", color = NA)
-  )
-ggsave('figures/underinteract_age.png', width = 7, height = 5, dpi = 300)
-```
-
 
 
 
@@ -137,3 +81,4 @@ Questions that I want answered after data exploration:
 5) Relationship between platform, type of ad, and interactions and type of user
 6) Relationship between type of user and time of day
 7) Relationship between platform and location of user?
+8) Prediction of gender via interests/ clustering
