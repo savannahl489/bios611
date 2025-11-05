@@ -12,6 +12,8 @@ figures/underinteract_age.png\
 figures/overinteract_country.png\
 figures/underinteract_country.png\
 figures/underinteract_interests.png\
+figures/interact_interests_total.png\
+figures/user_age_group_distr.png\
 
 
 clean:
@@ -67,4 +69,9 @@ figures/underinteract_interests.png: derived_data/composite_data2.csv figures Re
 	
 figures/overinteract_interests.png: derived_data/composite_data2.csv figures Report.Rmd 
 	Rscript -e "rmarkdown::render('Report.Rmd')"
+
+figures/interact_interests_total.png: derived_data/composite_data2.csv figures Report.Rmd 
+	Rscript -e "rmarkdown::render('Report.Rmd')"
 	
+figures/user_age_group_distr.png: derived_data/user_cleaned.csv figures Report.Rmd 
+	Rscript -e "rmarkdown::render('Report.Rmd')"

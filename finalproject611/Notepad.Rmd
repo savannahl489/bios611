@@ -22,60 +22,6 @@ comp2 <- read.csv('derived_data/composite_data2.csv') %>% select(-X)
 
 
 
-# Data Exploration: A trial
-
-Questions I want to answer:
-0) How clean is this data? NAs, encodings?
-0.1) are there certain users who out-interact the other users
-0.2) Do certain interests get more interactions online? perhaps technology for instance?
-1) What does the distribution of age of users look like?
-
-```{r}
-interact_count <- comp2 %>% group_by(user_id) %>% summarise(count = n()) %>%
-  left_join(users, by = 'user_id')
-
-# To label outliers in the dataset...
-
-# Compute quartiles and IQR
-Q1 <- quantile(interact_count$count, 0.25)
-Q3 <- quantile(interact_count$count, 0.75)
-IQR <- Q3 - Q1
-
-# Define lower and upper bounds
-lower_bound <- Q1 - 1.5 * IQR
-upper_bound <- Q3 + 1.5 * IQR
-
-# Create a label for each observation
-interact_count_outliers <- interact_count %>%
-  mutate(outlier_label = 
-           ifelse(count < lower_bound | 
-                    count > upper_bound, "Outlier", "Normal")) %>% 
-  filter(outlier_label == "Outlier")
-
-interact_count_outliers
-```
-
-```{r}
-over_interact <- interact_count_outliers %>% filter(count > 36)
-under_interact <- interact_count_outliers %>% filter(count < 36)
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 Questions that I want answered after data exploration:
 2) Do campaigns/ ads actually draw in people of their target interest? On a similar note, do ads/ campaigns draw in the gender they want to draw in?
 3) How does budget factor into the campaign? does higher budget = more people of that interest interacting with ads? Computation of a ratio of budget per day???

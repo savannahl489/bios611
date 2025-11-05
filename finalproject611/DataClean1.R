@@ -18,7 +18,8 @@ user2 <- user %>%
   pivot_wider(
     names_from = user_interests,
     values_from = value,
-    values_fill = 0
+    values_fill = 0,
+    names_prefix = "user_"
   ) %>% select(-interests)
 
 write.csv(user2, 'derived_data/user_cleaned.csv') # user_cleaned done
@@ -32,7 +33,8 @@ ads2 <- ads %>%
   pivot_wider(
     names_from = target_interests,
     values_from = value,
-    values_fill = 0
+    values_fill = 0,
+    names_prefix = "target_"
   )
 write.csv(ads2, 'derived_data/ads_cleaned.csv')
 
