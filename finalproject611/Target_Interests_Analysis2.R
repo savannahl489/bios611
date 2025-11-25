@@ -1,9 +1,5 @@
----
-title: "Notepad"
-output: html_document
----
+#Target Interests: Using an Average of User Interests
 
-```{r, message=FALSE}
 #libraries:
 
 library(tidyverse)
@@ -23,18 +19,8 @@ camp <- read.csv('source_data/campaigns.csv')
 users <- read.csv('derived_data/user_cleaned.csv') %>% select(-X)
 comp1 <- read.csv('derived_data/composite_data1.csv') %>% select(-X)
 comp2 <- read.csv('derived_data/composite_data2.csv') %>% select(-X)
-```
 
 
-
-Questions that I want answered after data exploration:
-2) Do campaigns/ ads actually draw in people of their target interest? 
-
-To see whether this is in fact doable, I want to try to predict what an ad's target interest is with the users that interact with the ad. Technically, this could have been done for target gender as well, but the scatterplot produced earlier showed no significant pattern.
-
-To prep:
-
-```{r}
 # getting the data ready
 user_interests <- c(
   "user_fitness", "user_health", "user_food", "user_lifestyle", "user_fashion",
@@ -49,9 +35,8 @@ interests_data <- comp2 %>%
   group_by(ad_id, across(all_of(target_interests))) %>%
   summarize(across(all_of(user_interests), ~ mean(.x, na.rm = TRUE)))
 
+interests_data
 
-```
-```{r}
 set.seed(123)
 
 train_idx <- sample(seq_len(nrow(interests_data)), size = 0.8 * nrow(interests_data))
@@ -76,9 +61,7 @@ for (tcol in target_interests) {
     sampsize = c("0" = sum(train_data[[tcol]] == "1"), "1" = sum(train_data[[tcol]] == "1"))
   )
 }
-```
 
-```{r}
 #predictions
 
 preds <- lapply(target_interests, function(tcol) {
@@ -135,10 +118,7 @@ do.call(grid.arrange, c(cm_plots, ncol = 4))
 
 # Close the device
 invisible(dev.off())
-```
 
-
-```{r}
 # to make the AUC plots
 
 probs <- lapply(target_interests, function(tcol) {
@@ -187,11 +167,11 @@ ggplot(roc_df, aes(x=fpr, y=tpr, color=tcol)) +
   )
 
 ggsave('figures/average_interest_ROC.png')
-```
 
-So, it seems as though some of these models did do fairly well in terms of using user interests to predict the target interests. Just out of curiosity, I produced a variable importance plot for the target_travel model.
+#So, it seems as though some of these models did do fairly well in terms of 
+#using user interests to predict the target interests. Just out of curiosity, I 
+#produced a variable importance plot for the target_travel model.
 
-```{r}
 imp <- importance(models[['target_travel']])
 imp_df <- data.frame(
   variable = rownames(imp),
@@ -207,16 +187,6 @@ ggplot(imp_df, aes(x = reorder(variable, importance), y = importance)) +
        y = "Mean Decrease Gini")
 
 ggsave('figures/travel_varimpplot.png')
-```
 
-This is a very interesting result. It seems as though, from the model, ads targeting travel ended up attracting users with interest in fashion.
-
-3) How does budget factor into the campaign? does higher budget = more people of that interest interacting with ads? Computation of a ratio of budget per day???
-
-5) Relationship between platform, type of ad, and interactions and type of user
-8) Prediction of gender via interests/ clustering
-
-Future areas of exploration:
-6) Relationship between type of user and time of day
-7) Relationship between platform and location of user?
-4) How does summer, winter/ seasons differ in terms of ad interactions? are there differences between the seasons? *Would probably want to take a look at those seasons as a separate variable??? *** be careful about the seasons, bc the dates do not match up... might be better to split as some sort of month or quarter intervals?
+#This is a very interesting result. It seems as though, from the model, ads 
+#targeting travel ended up attracting users with interest in fashion.

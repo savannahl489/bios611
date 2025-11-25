@@ -1,9 +1,4 @@
----
-title: "Notepad"
-output: html_document
----
-
-```{r, message=FALSE}
+#  2) Do campaigns/ ads actually draw in people of their target interest?
 #libraries:
 
 library(tidyverse)
@@ -23,18 +18,17 @@ camp <- read.csv('source_data/campaigns.csv')
 users <- read.csv('derived_data/user_cleaned.csv') %>% select(-X)
 comp1 <- read.csv('derived_data/composite_data1.csv') %>% select(-X)
 comp2 <- read.csv('derived_data/composite_data2.csv') %>% select(-X)
-```
+
+ 
+  
+#To see whether this is in fact doable, I want to try to predict what an ad's 
+#target interest is with the users that interact with the ad. Technically, this 
+#could have been done for target gender as well, but the scatterplot produced 
+#earlier showed no significant pattern.
+
+#To prep:
 
 
-
-Questions that I want answered after data exploration:
-2) Do campaigns/ ads actually draw in people of their target interest? 
-
-To see whether this is in fact doable, I want to try to predict what an ad's target interest is with the users that interact with the ad. Technically, this could have been done for target gender as well, but the scatterplot produced earlier showed no significant pattern.
-
-To prep:
-
-```{r}
 # getting the data ready
 user_interests <- c(
   "user_fitness", "user_health", "user_food", "user_lifestyle", "user_fashion",
@@ -45,13 +39,9 @@ target_interests <- gsub("user_", "target_", user_interests)
 
 interests_data <- comp2 %>%
   mutate(across(all_of(target_interests), as.factor)) %>% 
-  distinct(user_id, .keep_all = TRUE) %>% 
-  group_by(ad_id, across(all_of(target_interests))) %>%
-  summarize(across(all_of(user_interests), ~ mean(.x, na.rm = TRUE)))
+  mutate(across(all_of(user_interests), as.factor)) %>% 
+  distinct(user_id, .keep_all = TRUE)
 
-
-```
-```{r}
 set.seed(123)
 
 train_idx <- sample(seq_len(nrow(interests_data)), size = 0.8 * nrow(interests_data))
@@ -76,9 +66,7 @@ for (tcol in target_interests) {
     sampsize = c("0" = sum(train_data[[tcol]] == "1"), "1" = sum(train_data[[tcol]] == "1"))
   )
 }
-```
 
-```{r}
 #predictions
 
 preds <- lapply(target_interests, function(tcol) {
@@ -128,17 +116,15 @@ cm_plots <- lapply(target_interests, function(tcol) {
 
 do.call(grid.arrange, c(cm_plots, ncol = 4))
 
-png("figures/average_interest_confusion_matrix_grid.png", width = 2000, height = 1500, res = 150)
+png("figures/confusion_matrix_grid.png", width = 2000, height = 1500, res = 150)
 
 # Plot the grid
 do.call(grid.arrange, c(cm_plots, ncol = 4))
 
 # Close the device
 invisible(dev.off())
-```
 
 
-```{r}
 # to make the AUC plots
 
 probs <- lapply(target_interests, function(tcol) {
@@ -186,13 +172,21 @@ ggplot(roc_df, aes(x=fpr, y=tpr, color=tcol)) +
     panel.background = element_rect(fill = "white", color = NA)
   )
 
-ggsave('figures/average_interest_ROC.png')
-```
+ggsave('figures/interest_ROC.png')
 
-So, it seems as though some of these models did do fairly well in terms of using user interests to predict the target interests. Just out of curiosity, I produced a variable importance plot for the target_travel model.
 
-```{r}
-imp <- importance(models[['target_travel']])
+#So, the confusion matrix grid was quite disappointing in that the models 
+#resulting seemed to have predicted both classes poorly within the test dataset 
+#even though the class imbalance was accounted for. I decided to plot the AUC 
+#curve of each of the models and it seems as though out of all of the models, 
+#the one for target_health had the best performance. Overall, from looking at 
+#both the confusion matrices, the user interests of those who interacted with 
+#ads do not reflect that of the target interest. Just as part of a deepdive, I 
+#will perhaps look at the model for health specifically to see which user 
+#interests were good predictors for it.
+
+
+imp <- importance(models[['target_health']])
 imp_df <- data.frame(
   variable = rownames(imp),
   importance = imp[, "MeanDecreaseGini"]
@@ -202,21 +196,15 @@ ggplot(imp_df, aes(x = reorder(variable, importance), y = importance)) +
   geom_col(fill = "#1f78b4") +
   coord_flip() +
   theme_minimal() +
-  labs(title = paste("Variable Importance: Target_Travel"),
+  labs(title = paste("Variable Importance: Target_Health"),
        x = "Variable",
        y = "Mean Decrease Gini")
 
-ggsave('figures/travel_varimpplot.png')
-```
+ggsave('figures/health_varimpplot.png')
 
-This is a very interesting result. It seems as though, from the model, ads targeting travel ended up attracting users with interest in fashion.
-
-3) How does budget factor into the campaign? does higher budget = more people of that interest interacting with ads? Computation of a ratio of budget per day???
-
-5) Relationship between platform, type of ad, and interactions and type of user
-8) Prediction of gender via interests/ clustering
-
-Future areas of exploration:
-6) Relationship between type of user and time of day
-7) Relationship between platform and location of user?
-4) How does summer, winter/ seasons differ in terms of ad interactions? are there differences between the seasons? *Would probably want to take a look at those seasons as a separate variable??? *** be careful about the seasons, bc the dates do not match up... might be better to split as some sort of month or quarter intervals?
+#It seems as though the top user interests that predict target_health includes 
+#user_health, but not as the 'best' predictor. I will now take a different 
+#approach, where I take each observation within the train and test data to be 
+#an ad and then average the interests of the users who interacted with each ad 
+#as an attribute of the ad. Maybe that might help in seeing whether user 
+#interests are related to the target interest?
