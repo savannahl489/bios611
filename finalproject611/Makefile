@@ -23,6 +23,7 @@ figures/confusion_matrix_grid.png\
 figures/average_interest_confusion_matrix_grid.png\
 figures/average_interest_ROC.png\
 figures/travel_varimpplot.png\
+figures/interactions_vs_budget.png\
 Report.html\
 
 
@@ -114,6 +115,9 @@ figures/average_interest_ROC.png: derived_data figures derived_data/composite_da
 figures/travel_varimpplot.png: derived_data figures derived_data/composite_data2.csv Target_Interests_Analysis2.R
 	Rscript Target_Interests_Analysis2.R
 
+figures/interactions_vs_budget.png: derived_data figures derived_data/composite_data2.csv Interactions_vs_Budget.R
+	Rscript Interactions_vs_Budget.R
+
 Report.html: derived_data figures \
      Report.Rmd \
      derived_data/user_cleaned.csv\
@@ -137,5 +141,6 @@ Report.html: derived_data figures \
      figures/confusion_matrix_grid.png\
      figures/average_interest_confusion_matrix_grid.png\
      figures/average_interest_ROC.png\
-     figures/travel_varimpplot.png
+     figures/travel_varimpplot.png\
+     figures/interactions_vs_budget.png
 	Rscript -e "rmarkdown::render('Report.Rmd')"

@@ -138,3 +138,11 @@ So, it seems as though some of these models did do fairly well in terms of using
 ![](figures/travel_varimpplot.png)
 
 This is a very interesting result. It seems as though, from the model, ads targeting travel happened to attract users with an interest in fashion. Despite this, overall, when considering the models as a whole, user interests alone are unreliable when predicting the target interests of ads.
+
+# Question 2: Interactions vs Campaign Budget
+
+This second section of analysis looks into whether budget of the campaign affects the number of interactions with the ads within that campaign. I first looked at changing the data in such a way to balance out the different durations of the campaigns, thus I grouped the data by campaigns and looked at interactions per day and budget per day rather than total budget and total interactions. I then plotted the results via a scatterplot, but was still curious to see whether there was a pattern in the duration of the campaigns, so I used a scale of duration as the color for the legend of the points.
+
+![](figures/interactions_vs_budget.png)
+
+It looks like while most campaigns are within a similar interactions per day count and budget per day, there are three points that stray a bit differently. Based on the coloring of these points, all three seem to be on the shorter duration side. I ended up just out of curiosity building a basic linear model with the interactions per day as the response and budget per day as the predictor. It did not end up being significant, so I excluded results here.
