@@ -86,16 +86,24 @@ ggplot(tguu, aes(
     values = c(
       "Male"   = "#13294B",  # UNC Navy
       "Female" = "#4B9CD3",  # Carolina Blue
-      "All"    = "#999999"   # UNC Gray (neutral)
+      "All"    = "#999999"   # Gray
     )
   ) +
-  theme_minimal(base_size = 14) +
+  theme_bw(base_size = 14) +
   labs(
     title = "Proportion Male vs Female",
     x = "Proportion Male",
     y = "Proportion Female",
     color = "Target Gender"
+  ) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(face = "bold"),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black"),
+    legend.position = "right"
   )
+
 ggsave("figures/target_gender_vs_user_gender.png", width = 7, height = 5, dpi = 300)
 
 #In general, I think based on individual users and their distribution in gender,

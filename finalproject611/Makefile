@@ -24,6 +24,11 @@ figures/average_interest_confusion_matrix_grid.png\
 figures/average_interest_ROC.png\
 figures/travel_varimpplot.png\
 figures/interactions_vs_budget.png\
+figures/campaign_ad_count.png\
+figures/entropy_plot.png\
+figures/tsne_plot.png\
+figures/silhouette_width.png\
+figures/tsne_aggclus.png\
 Report.html\
 
 
@@ -118,6 +123,21 @@ figures/travel_varimpplot.png: derived_data figures derived_data/composite_data2
 figures/interactions_vs_budget.png: derived_data figures derived_data/composite_data2.csv Interactions_vs_Budget.R
 	Rscript Interactions_vs_Budget.R
 
+figures/campaign_ad_count.png: derived_data figures derived_data/composite_data2.csv Interactions_vs_Budget.R
+	Rscript Interactions_vs_Budget.R
+
+figures/entropy_plot.png: derived_data figures derived_data/user_cleaned.csv User_Clustering.R
+	Rscript User_Clustering.R
+	
+figures/tsne_plot.png:  derived_data figures derived_data/user_cleaned.csv User_Clustering.R
+	Rscript User_Clustering.R
+
+figures/tsne_aggclus.png: derived_data figures derived_data/user_cleaned.csv Users_Hierarchical_Clusters.R
+	Rscript Users_Hierarchical_Clusters.R
+	
+figures/silhouette_width.png: derived_data figures derived_data/user_cleaned.csv Users_Hierarchical_Clusters.R
+	Rscript Users_Hierarchical_Clusters.R
+	
 Report.html: derived_data figures \
      Report.Rmd \
      derived_data/user_cleaned.csv\
@@ -142,5 +162,10 @@ Report.html: derived_data figures \
      figures/average_interest_confusion_matrix_grid.png\
      figures/average_interest_ROC.png\
      figures/travel_varimpplot.png\
-     figures/interactions_vs_budget.png
+     figures/interactions_vs_budget.png\
+     figures/campaign_ad_count.png\
+     figures/entropy_plot.png\
+     figures/tsne_plot.png\
+     figures/silhouette_width.png\
+     figures/tsne_aggclus.png
 	Rscript -e "rmarkdown::render('Report.Rmd')"

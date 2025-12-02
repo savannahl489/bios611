@@ -1,6 +1,4 @@
 FROM rocker/verse:latest
 
-WORKDIR /work
-
-RUN R -e "install.packages(c('gridExtra', 'caret', 'randomForest', 'Polychrome'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
+RUN R -e "install.packages(c('gridExtra', 'caret', 'randomForest', 'Polychrome', 'FactoMineR', 'factoextra', 'Rtsne'), dependencies=TRUE, repos='http://cran.rstudio.com/')"
 

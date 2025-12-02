@@ -71,3 +71,31 @@ ggplot(ib_df, aes(x = budget_per_day,
   theme_unc()
 
 ggsave('figures/interactions_vs_budget.png')
+
+theme_unc2 <- function() {
+  theme_minimal(base_size = 14) +
+    theme(
+      axis.title       = element_text(color = unc_navy, face = "bold"),
+      axis.text        = element_text(color = unc_navy),
+      plot.title       = element_text(color = unc_navy, face = "bold", hjust = 0.5),                  # Dark navy
+      panel.grid.major = element_line(color = "gray85"),
+      panel.grid.minor = element_blank(),
+      plot.background = element_rect(fill = "white", color = NA),
+      panel.background = element_rect(fill = "white", color = NA)
+    )
+}
+
+camp_ad_count <- comp2 %>% distinct(campaign_id, ad_id) %>% 
+  group_by(campaign_id) %>% summarize(ads = n())
+ggplot(camp_ad_count, aes(x = ads)) +
+  geom_histogram(binwidth = 2,
+                 fill = "#4B9CD3",      # Carolina Blue
+                 color = "#003366") +   # Navy outline
+  labs(
+    title = "Ad Count in Campaigns Distribution",
+    x = "Ad Count",
+    y = "Count"
+  ) +
+  theme_unc2()
+
+ggsave('figures/campaign_ad_count.png')

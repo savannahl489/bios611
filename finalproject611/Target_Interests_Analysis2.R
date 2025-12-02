@@ -100,11 +100,14 @@ cm_plots <- lapply(target_interests, function(tcol) {
          aes(x = Reference, y = Prediction, fill = Freq)) +
     geom_tile(color = "white") +
     geom_text(aes(label = Freq), size = 6) +
-    scale_fill_gradient(low="#e6f0fa", high="#4B97C9") +  # UNC colors
+    scale_fill_gradient(low = "#e6f0fa", high = "#4B97C9") +  # UNC light → dark blue
     labs(title = tcol, x = "Reference", y = "Prediction") +
-    theme_minimal(base_size = 11) +
+    theme_bw(base_size = 11) +
     theme(
-      plot.title = element_text(hjust = 0.5),
+      plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+      axis.title = element_text(face = "bold"),
+      panel.border = element_blank(),
+      axis.line = element_line(color = "black"),
       legend.position = "none"
     )
 })
@@ -156,15 +159,25 @@ roc_df <- bind_rows(
 my_colors <- palette36.colors(n = 13)
 names(my_colors) <- target_interests
 
-ggplot(roc_df, aes(x=fpr, y=tpr, color=tcol)) +
-  geom_line(size=1.3) +
-  geom_abline(lty=2, color="gray50") +
+ggplot(roc_df, aes(x = fpr, y = tpr, color = tcol)) +
+  geom_line(size = 1.3) +
+  geom_abline(lty = 2, color = "gray50") +
   scale_color_manual(values = my_colors) +
-  theme_minimal()+
+  theme_bw(base_size = 14) +
+  labs(
+    title = "ROC Curves",
+    x = "False Positive Rate",
+    y = "True Positive Rate",
+    color = "Model"
+  ) +
   theme(
-    plot.background  = element_rect(fill = "white", color = NA),
-    panel.background = element_rect(fill = "white", color = NA)
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(face = "bold"),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black"),
+    legend.position = "right"
   )
+
 
 ggsave('figures/average_interest_ROC.png')
 
@@ -178,13 +191,23 @@ imp_df <- data.frame(
   importance = imp[, "MeanDecreaseGini"]
 )
 
+
 ggplot(imp_df, aes(x = reorder(variable, importance), y = importance)) +
-  geom_col(fill = "#1f78b4") +
+  geom_col(fill = "#4B9CD3") +  # Carolina Blue
   coord_flip() +
-  theme_minimal() +
-  labs(title = paste("Variable Importance: Target_Travel"),
-       x = "Variable",
-       y = "Mean Decrease Gini")
+  theme_bw(base_size = 14) +
+  labs(
+    title = "Variable Importance: Target_Travel",
+    x = "Variable",
+    y = "Mean Decrease Gini"
+  ) +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.title = element_text(face = "bold"),
+    panel.border = element_blank(),
+    axis.line = element_line(color = "black")
+  )
+
 
 ggsave('figures/travel_varimpplot.png')
 
