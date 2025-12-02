@@ -1,8 +1,9 @@
 ---
-title: "Report"
+title: "Maximizing Impact: Social Media Campaign Effectiveness"
 output:
   html_document:
     df_print: paged
+    theme: journal
 date: "2025-10-30"
 ---
 

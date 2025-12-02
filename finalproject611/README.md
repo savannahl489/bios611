@@ -7,9 +7,11 @@ This project is run within a docker container. the following instructions will t
 
 To Build And Run the Container:
 -----------------------------------------------------
-1) Clone this folder onto your local computer
-2) Make sure the present working directory is set to the folder you just cloned
-2) Run "./start.sh" to build and run the container.
+1) Before cloning the repository, ensure that you have Git LFS as this is needed to load the datasets in source_data properly. Then clone this folder onto your local computer.
+2) Make sure the present working directory is set to the folder you just cloned and ensure that the datasets in the folder source_data show up as datasets. If they do not:
+    - Ensure that git lfs is installed by running "git lfs install"
+    - Run "git lfs pull"
+3) Run "./start.sh" to build and run the container.
 4) Navigate to "localhost:8797" in your web browser. Your username will be "rstudio" and password "1234".
 
 To Create the Report:
