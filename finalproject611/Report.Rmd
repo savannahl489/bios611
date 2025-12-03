@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 # Data Introduction:
 
-The source data is in the folder source_data and is from Kaggle. I chose this collection of datasets for three primary reasons. The first being its relation to the marketing industry and the second being it a collection of smaller datasets rather than one huge dataset. The third is cleanliness of the datasets themselves. 
+The source data is in the folder source_data and is from Kaggle. I chose this collection of datasets for three primary reasons. The first being its relation to the marketing industry and the second being that it is a collection of smaller datasets rather than one huge dataset. The third is cleanliness of the datasets themselves. 
 
 This data is comprised of four datasets: Ad Events, Ads, Users, and Campaigns. Within Ad Events, each observation is an user interaction with one ad associated with a campaign. The Ad Events dataset provides information on the time of interaction (day of week and time of day), type of interaction, user id, ad id, campaign id, and platform of interaction for each event. The users, ads and campaigns associated with the ad events are in their respective datasets. The data in Users is the demographic information of each user (user interests, gender, location, and age). The observations within Ads are the individual ads within each campaign, providing information on the campaign to which it belongs to, the platform and type of ad, as well as the target audience (gender, age, and interests). The Campaign dataset contains the name of each campaign, duration and time the campaign was run, and the budget of the campaign for each of the 50 campaigns run. 
 
@@ -112,14 +112,14 @@ It seems like consistently, whether or not the add targeted males or females, ma
 
 ![Distribution of User Gender](figures/gender_table.png)
 
-So, it does seem as though there is a pretty large difference in terms of counts of users among the three categories of gender. Thus, it may make more sense for us to look at the proportion of users interacting with these ads when looking at gender. Wait... I had almost forgotten, users can likely interact with the same ad multiple times. It might be wise to look at both unique users interacting with the add and total interactions regardless of whether users interacted with an add more than once.
+So, it does seem as though there is a pretty large difference in terms of counts of users among the three categories of gender. Thus, it may make more sense for us to look at the proportion of users interacting with these ads when looking at gender. Wait... I had almost forgotten, users can likely interact with the same ad multiple times. It might be wise to look at both unique users interacting with the ad.
 
-Here is the plan: I will endeavor to make two plots: X axis as proportion of males, Y axis as proportion of females, legend as the target gender For each version of the above (unique users vs just proportion of interactions)
+Here is the plan: I will endeavor to make a plot of unique user, with the X axis as proportion of males, Y axis as proportion of females, legend as the target gender.
 
 
 ![Proportion of Male and Females Reached by Ads](figures/target_gender_vs_user_gender.png)
 
-In general, I think based on individual users and their distribution in gender, no one gender is proportionally speaking overinteracting with any one add in any overwhelming amount. Given this indication, I think it really isn't all that worth it in terms of the potential for it to be interesting to look at the other figure-- where I am looking at the total sum of interactions rather than just unique users.
+In general, I think based on individual users and their distribution in gender, no one gender is proportionally speaking overinteracting with any one add in any overwhelming amount.
 
 # Question 2: Target Interests
 
